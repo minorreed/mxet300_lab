@@ -31,7 +31,7 @@ import time
 import collections
 
 # The SICK TiM561-2050101 sensor has the following IP. 
-SENSOR_IP = "192.168.6.2"
+SENSOR_IP = "192.168.6.241"
 
 # Defines a named tuple that can hold datagram information from a SICK TiM561-2050101 Lidar device.
 Sick561Datagram = collections.namedtuple("sick561_datagram", ["TypeOfCommand", "Command", "VersionNumber",
