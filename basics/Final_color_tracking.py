@@ -1,3 +1,4 @@
+
 # L3_color_tracking.py
 # This program was designed to have SCUTTLE following a target using a USB camera input
 
@@ -41,24 +42,24 @@ fov = 1         # Camera field of view in rad (estimate)
 
 # ---------- Red HSV ----------
 R1_min = 0      # Minimum H value
-R2_min = 85     # Minimum S value
-R3_min = 115    # Minimum V value
+R2_min = 115     # Minimum S value
+R3_min = 75    # Minimum V value
 
-R1_max = 30     # Maximum H value
+R1_max = 255     # Maximum H value
 R2_max = 255    # Maximum S value
 R3_max = 255    # Maximum V value
 
 # ---------- Green HSV ----------
-G1_min = 0
-G2_min = 110
-G3_min = 50
+G1_min = 35
+G2_min = 90
+G3_min = 30
 
 G1_max = 255
 G2_max = 255
 G3_max = 100
 # --------------------------------------
 
-target_width = 100      # Target pixel width of tracked object
+target_width = 125      # Target pixel width of tracked object
 angle_margin = 0.2      # Radians object can be from image center to be considered "centered"
 width_margin = 10       # Minimum width error to drive forward/back
 
@@ -85,18 +86,19 @@ def computePWM(speed):   # speed in [-1,1]
 
 def sendShooter(speed):
     """Drive both shooter motors with signed speed in [-1,1]."""
-    shoot1A.value = 0.0
-    shoot1B.value = 1.0
-    shoot2A.value = 0.0
-    shoot2B.value = 1.0
+    pwm_vals = computePWM(speed)
+    shoot1A.value = pwm_vals[1]
+    shoot1B.value = pwm_vals[0]
+    shoot2A.value = pwm_vals[1]
+    shoot2B.value = pwm_vals[0]
 
 # ---------- Servo setup ----------
 SERVO_PIN = 13
 servo = Servo(SERVO_PIN, min_pulse_width=0.0008, max_pulse_width=0.0022)
 
 # Positions (tune these if needed)
-SERVO_LOAD = 1.0   # ball waiting position
-SERVO_FIRE = -0.3    # pushes ball into flywheel
+SERVO_LOAD = -0.3   # ball waiting position
+SERVO_FIRE = 1.0    # pushes ball into flywheel
 
 def servo_load():
     servo.value = SERVO_LOAD
@@ -207,7 +209,6 @@ def main():
                         elif red_pixels > COLOR_AREA_MIN and red_pixels > green_pixels:
                             # red dominant -> spin flywheel and fire one ball
                             print("Aligned on RED -> SPIN + FIRE")
-                            servo_load()
                             sendShooter(1.0)          # spin shooter motors
                             time.sleep(0.5)           # spin-up time (tune if needed)
                             servo_fire()              # push ball into wheel
@@ -250,5 +251,9 @@ def main():
         sendShooter(0)   # ensure shooter is off on exit
         servo_load()     # park servo in load position
 
-if __name__ == '__main__':
+def engage():
     main()
+
+
+# if __name__ == "__main__":
+#     main()

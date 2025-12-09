@@ -20,7 +20,7 @@ SERVO_PIN = 13   # CHANGE THIS IF YOUR SERVO SIGNAL IS ON ANOTHER PIN
 servo = Servo(SERVO_PIN, min_pulse_width=0.0008, max_pulse_width=0.0022)
 
 # Servo positions
-POS_A = -0.3
+POS_A = -1
 POS_B = 1.0
 
 # move servo to starting position
