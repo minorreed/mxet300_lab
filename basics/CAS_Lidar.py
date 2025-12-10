@@ -164,7 +164,7 @@ def main():
     state_start_time = time.time()
     engaged_once = False
 
-    # New: remember when we first saw a door, so we can advance a bit
+    # Remember when we first saw a door, so we can advance a bit
     door_detected_time = None
 
     # Counter for detecting end of hallway
