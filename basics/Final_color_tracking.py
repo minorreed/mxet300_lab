@@ -63,12 +63,7 @@ target_width = 125      # Target pixel width of tracked object
 angle_margin = 0.2      # Radians object can be from image center to be considered "centered"
 width_margin = 10       # Minimum width error to drive forward/back
 
-# ---------- Shooter motor setup (pins 35,36,37,38) ----------
-# Using BCM numbering:
-# Physical 35 -> GPIO19
-# Physical 36 -> GPIO16
-# Physical 37 -> GPIO26
-# Physical 38 -> GPIO20
+# ---------- Shooter motor setup ----------
 frq = 150
 
 shoot1A = pwm(19, frequency=frq, initial_value=0)   # Pin 35
@@ -185,7 +180,7 @@ def main():
                 if abs(angle) < angle_margin:
                     e_width = target_width - w                          # Find error in target width and measured width
 
-                    # If error width is within acceptable margin -> ALIGNED
+                    # If error width is within acceptable margin goes to ALIGNED
                     if abs(e_width) < width_margin:
                         sc.driveOpenLoop(np.array([0.,0.]))             # Stop when centered and aligned
 
@@ -200,27 +195,26 @@ def main():
                               "| red_px =", red_pixels,
                               "| green_px =", green_pixels)
 
-                        # Logic: if green -> do NOT shoot; if red -> shoot with servo
+                        # Logic: if green, do NOT shoot 
+                        #if red, shoot with servo
                         if green_pixels > COLOR_AREA_MIN and green_pixels >= red_pixels:
-                            # green dominant -> no shooting
+                            # green dominant, no shooting
                             sendShooter(0)
-                            print("Aligned on GREEN -> DO NOT SHOOT")
+                            print("Aligned on GREEN - DO NOT SHOOT")
 
                         elif red_pixels > COLOR_AREA_MIN and red_pixels > green_pixels:
-                            # red dominant -> spin flywheel and fire one ball
+                            # red dominant, spin flywheel and fire one ball
                             print("Aligned on RED -> SPIN + FIRE")
                             sendShooter(1.0)          # spin shooter motors
-                            time.sleep(0.5)           # spin-up time (tune if needed)
+                            time.sleep(0.5)           # spin-up time
                             servo_fire()              # push ball into wheel
 
                         else:
-                            # unknown / not enough color pixels -> safe = no shoot
                             sendShooter(0)
-                            print("Aligned but color unclear -> DO NOT SHOOT")
+                            print("Aligned but color unclear - DO NOT SHOOT")
 
                         continue
 
-                    # Not at correct distance yet -> drive, BUT DON'T SHOOT
                     sendShooter(0)
 
                     fwd_effort = e_width/target_width
@@ -230,7 +224,7 @@ def main():
                     print("Angle: ", angle, " | Target L/R: ", *wheel_speed, " | Measured L\\R: ", *wheel_measured)
                     continue
 
-                # Not facing target -> turning only, shooter OFF
+                # Not facing target, turning only, shooter OFF
                 sendShooter(0)
 
                 wheel_speed = ik.getPdTargets(np.array([0, -1.1*angle]))    # Find wheel speeds for only turning
@@ -243,17 +237,17 @@ def main():
                 sc.driveOpenLoop(np.array([0.,0.]))         # stop if no targets detected
                 sendShooter(0)                              # make sure shooter is off
 
-    except KeyboardInterrupt: # condition added to catch a "Ctrl-C" event and exit cleanly
+    except KeyboardInterrupt:
         pass
 
     finally:
         print("Exiting Color Tracking.")
-        sendShooter(0)   # ensure shooter is off on exit
+        sendShooter(0)   # shooter is off on exit
         servo_load()     # park servo in load position
 
 def engage():
     main()
 
-
+# Test if shooter logic works
 # if __name__ == "__main__":
 #     main()
